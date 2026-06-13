@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pipenv = "*"
+shell = "*"
+flask-restful = "*"
+flask-cors = "*"
+python-dotenv = "*"
+flask-bcrypt = "*"
+flask = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
