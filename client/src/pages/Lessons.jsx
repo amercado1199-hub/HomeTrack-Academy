@@ -15,7 +15,7 @@ function Lessons() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((data) => setLessons(data));
+      .then((data) => setLessons(data.lessons));
 
     fetch("http://localhost:5555/subjects", {
       credentials: "include",

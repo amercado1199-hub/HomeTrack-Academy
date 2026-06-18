@@ -201,64 +201,31 @@ def lessons():
         return {"error": "Unauthorized"}, 401
 
     if request.method == "GET":
-        lessons = (
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 5, type=int)
+
+        query = (
             Lesson.query
             .join(Subject)
             .join(Student)
             .filter(Student.user_id == user_id)
-            .all()
         )
 
-        return [lesson.to_dict() for lesson in lessons], 200
+        paginated_lessons = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        return {
+            "lessons": [lesson.to_dict() for lesson in paginated_lessons.items],
+            "page": paginated_lessons.page,
+            "pages": paginated_lessons.pages,
+            "total": paginated_lessons.total
+        }, 200
 
     if request.method == "POST":
         title = request.form.get("title")
-        lesson_date = request.form.get("lesson_date")
-        status = request.form.get("status")
-        subject_id = request.form.get("subject_id")
-
-        subject = (
-            Subject.query
-            .join(Student)
-            .filter(
-                Subject.id == subject_id,
-                Student.user_id == user_id
-            )
-            .first()
-        )
-
-        if not subject:
-            return {"error": "Subject not found"}, 404
-
-        work_image_file = request.files.get("work_image")
-        future_work_image_file = request.files.get("future_work_image")
-
-        work_image_path = None
-        future_work_image_path = None
-
-        if work_image_file:
-            filename = secure_filename(work_image_file.filename)
-            work_image_file.save(os.path.join(UPLOAD_FOLDER, filename))
-            work_image_path = f"/uploads/{filename}"
-
-        if future_work_image_file:
-            filename = secure_filename(future_work_image_file.filename)
-            future_work_image_file.save(os.path.join(UPLOAD_FOLDER, filename))
-            future_work_image_path = f"/uploads/{filename}"
-
-        lesson = Lesson(
-            title=title,
-            lesson_date=lesson_date,
-            status=status,
-            subject_id=subject.id,
-            work_image=work_image_path,
-            future_work_image=future_work_image_path
-        )
-
-        db.session.add(lesson)
-        db.session.commit()
-
-        return lesson.to_dict(), 201
 
 
 @app.route("/lessons/<int:id>", methods=["PATCH"])
